@@ -1,4 +1,4 @@
-import profileData from '@/data/profile-data.json';
+import profileData from '../data/profile-data.json';
 
 export const meta = profileData.meta;
 export const personal = profileData.personal;
