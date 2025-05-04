@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd my_portfolio && npm install --legacy-peer-deps && npm run build",
-  "outputDirectory": "my_portfolio/out",
+  "buildCommand": "npm run build",
+  "outputDirectory": "out",
   "framework": "nextjs",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
