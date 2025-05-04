@@ -3,9 +3,7 @@
   "outputDirectory": "out",
   "framework": "nextjs",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/:path*", "destination": "/index.html" }
   ],
-  "routes": [
-    { "src": "/[^.]+", "dest": "/", "status": 200 }
-  ]
+  "trailingSlash": true
 }
