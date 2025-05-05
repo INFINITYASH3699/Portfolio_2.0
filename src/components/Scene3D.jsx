@@ -1,32 +1,16 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PointMaterial, Points, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-// Particle field component
+// Custom particles implementation without using drei
 const ParticleField = ({ count = 5000, mousePosition }) => {
-  const pointsRef = useRef();
+  const particlesRef = useRef();
 
-  useFrame((state) => {
-    if (!pointsRef.current) return;
-
-    // Slow rotation of the entire particle system
-    pointsRef.current.rotation.x = THREE.MathUtils.lerp(
-      pointsRef.current.rotation.x,
-      mousePosition.y * 0.5,
-      0.05
-    );
-    pointsRef.current.rotation.y = THREE.MathUtils.lerp(
-      pointsRef.current.rotation.y,
-      mousePosition.x * 0.5,
-      0.05
-    );
-  });
-
-  // Generate random particles in a sphere
-  const [positions] = useState(() => {
+  // Create geometry and material for particles
+  const [particlesGeometry] = useState(() => {
+    const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -41,20 +25,42 @@ const ParticleField = ({ count = 5000, mousePosition }) => {
       positions[i3 + 2] = radius * Math.cos(phi);
     }
 
-    return positions;
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return geometry;
+  });
+
+  const [particlesMaterial] = useState(() => {
+    return new THREE.PointsMaterial({
+      color: "#88ccff",
+      size: 0.01,
+      sizeAttenuation: true,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+  });
+
+  useFrame(() => {
+    if (!particlesRef.current) return;
+
+    // Slow rotation of the entire particle system
+    particlesRef.current.rotation.x = THREE.MathUtils.lerp(
+      particlesRef.current.rotation.x,
+      mousePosition.y * 0.5,
+      0.05
+    );
+    particlesRef.current.rotation.y = THREE.MathUtils.lerp(
+      particlesRef.current.rotation.y,
+      mousePosition.x * 0.5,
+      0.05
+    );
   });
 
   return (
-    <Points ref={pointsRef} positions={positions} stride={3}>
-      <PointMaterial
-        transparent
-        color="#88ccff"
-        size={0.01}
-        sizeAttenuation={true}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </Points>
+    <primitive
+      ref={particlesRef}
+      object={new THREE.Points(particlesGeometry, particlesMaterial)}
+    />
   );
 };
 
@@ -65,7 +71,6 @@ const Scene3D = ({ mousePosition }) => {
       <Canvas camera={{ position: [0, 0, 3], fov: 75 }}>
         <ambientLight intensity={0.5} />
         <ParticleField mousePosition={mousePosition} />
-        <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
       </Canvas>
     </div>
   );
