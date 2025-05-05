@@ -1,224 +1,365 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ExternalLinkIcon, GithubIcon, MonitorIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion, useInView } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation, EffectCoverflow } from "swiper/modules";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { GithubIcon, ExternalLinkIcon, FolderIcon, InfoIcon, PanelRightIcon } from "lucide-react";
+import { getProjects } from "@/lib/resume";
 
-interface Project {
-  name: string;
-  description: string[];
-  technologies: string[];
-  image: string;
-  previewImage: string;
-  liveLink?: string;
-  githubLink?: string;
-}
-
-const projects: Project[] = [
-  {
-    name: "Opex Home Solutions",
-    description: [
-      "Developed a MERN stack web app for home design solutions using React.js, Node.js, and MongoDB, AWS.",
-      "Optimized UI performance, integrated authentication, and enabled real-time database updates."
-    ],
-    technologies: ["React.js", "Node.js", "MongoDB", "AWS", "Express.js"],
-    image: "/images/projects/opex.jpg",
-    previewImage: "/images/project-previews/opex.jpg",
-    liveLink: "https://opex-home-solutions.vercel.app/",
-    githubLink: "https://github.com/INFINITYASH3699/Opex-Home-Solution"
-  },
-  {
-    name: "Portfolio Hub",
-    description: [
-      "Built a responsive portfolio builder with real-time project management using Next.js, Tailwind CSS, and Node.js.",
-      "Integrated secure user authentication and customizable UI for seamless portfolio creation and sharing."
-    ],
-    technologies: ["Next.js", "Tailwind CSS", "Node.js", "MongoDB", "TypeScript"],
-    image: "/images/projects/portfolio-hub.jpg",
-    previewImage: "/images/project-previews/portfolio-hub.jpg",
-    liveLink: "https://portfolio-hubspot.vercel.app/",
-    githubLink: "https://github.com/INFINITYASH3699/Portfolio-Hub"
-  },
-  {
-    name: "THE CAKE HEAVEN",
-    description: [
-      "Designed and deployed a cake ecom website with tech stack using Next.js, Tailwind, Cloudinary and MongoDB.",
-      "Improved accessibility and boosting user engagement and mobile usability."
-    ],
-    technologies: ["Next.js", "Tailwind CSS", "Cloudinary", "MongoDB", "Firebase Auth"],
-    image: "/images/projects/cake-heaven.jpg",
-    previewImage: "/images/project-previews/cake-heaven.jpg",
-    liveLink: "https://the-cake-heaven.vercel.app/",
-    githubLink: "https://github.com/INFINITYASH3699/THE-CAKE-HEAVEN"
-  }
-];
+// Make sure to import the necessary Swiper CSS in the component
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-coverflow";
 
 export function ProjectsSection() {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: false, amount: 0.2 });
+  const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
+  const [isIframeLoaded, setIsIframeLoaded] = useState<Record<string, boolean>>({});
+  const projects = getProjects();
 
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  };
 
-  const handleOpenPreview = (project: Project) => {
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  // Merge dynamic link data
+  const enhancedProjects = projects.map(project => ({
+    ...project,
+    isLiveFrameLoaded: !!isIframeLoaded[project.name]
+  }));
+
+  const handleOpenProject = (project: typeof projects[0]) => {
     setSelectedProject(project);
   };
 
-  const handleClosePreview = () => {
-    setSelectedProject(null);
+  const handleIframeLoad = (projectName: string) => {
+    setIsIframeLoaded(prev => ({ ...prev, [projectName]: true }));
   };
 
   return (
-    <section
-      id="projects"
-      ref={ref}
-      className="py-20 px-4"
-    >
-      <div className="container mx-auto">
+    <section id="projects" className="py-20 relative overflow-hidden z-10">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-dotted-grid opacity-5 pointer-events-none" />
+      <div className="absolute -left-64 top-1/3 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl" />
+      <div className="absolute -right-64 bottom-1/3 w-96 h-96 bg-blue-400/10 rounded-full filter blur-3xl" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          ref={ref}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          variants={containerVariants}
+          className="max-w-5xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            My <span className="text-primary">Projects</span>
-          </h2>
-          <div className="h-1 w-20 bg-primary mx-auto mb-6" />
-          <p className="text-muted-foreground">
-            Showcasing my latest work and projects. Each project reflects my skills, creativity, and problem-solving approach.
-          </p>
-        </motion.div>
+          <motion.div variants={itemVariants} className="text-center mb-16">
+            <h4 className="text-primary font-medium mb-2">MY WORK</h4>
+            <h2 className="text-3xl md:text-4xl font-bold font-display mb-6">
+              Recent Projects
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              A showcase of my latest web development projects, demonstrating my skills in frontend development, responsive design, and full-stack capabilities.
+            </p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+          {/* Featured Projects - Swiper Carousel */}
+          <motion.div variants={itemVariants} className="mb-20">
+            <Swiper
+              effect="coverflow"
+              grabCursor={true}
+              centeredSlides={true}
+              slidesPerView={"auto"}
+              coverflowEffect={{
+                rotate: 50,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: false,
+              }}
+              pagination={{
+                clickable: true,
+              }}
+              navigation={true}
+              modules={[EffectCoverflow, Pagination, Navigation]}
+              className="mySwiper"
             >
-              <Card className="project-card h-full overflow-hidden hover:shadow-lg border border-border/50 hover:border-primary/30 transition-all">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.name}
-                    fill
-                    className="object-cover transition-transform hover:scale-105 duration-300"
-                  />
+              {enhancedProjects.map((project, index) => (
+                <SwiperSlide
+                  key={project.name}
+                  className="max-w-2xl rounded-xl overflow-hidden"
+                >
+                  <div className="relative group card-3d">
+                    <div className="aspect-video w-full relative overflow-hidden rounded-t-xl">
+                      {project.liveLink ? (
+                        <>
+                          {/* Fallback image shown while iframe is loading */}
+                          {!project.isLiveFrameLoaded && (
+                            <div className="absolute inset-0 bg-card flex items-center justify-center">
+                              <div className="text-center p-4">
+                                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+                                <p className="text-sm">Loading live preview...</p>
+                              </div>
+                              <Image
+                                src={project.previewImage || project.image}
+                                alt={project.name}
+                                fill
+                                className="object-cover opacity-30"
+                              />
+                            </div>
+                          )}
 
-                  {/* Overlay with buttons */}
-                  <div className="absolute inset-0 bg-background/80 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="flex gap-3">
-                      <Button
-                        size="sm"
-                        onClick={() => handleOpenPreview(project)}
-                        className="rounded-full"
-                      >
-                        <MonitorIcon className="h-4 w-4 mr-2" />
-                        Preview
-                      </Button>
-                      {project.liveLink && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-full"
-                          asChild
-                        >
-                          <a href={project.liveLink} target="_blank" rel="noopener noreferrer">
-                            <ExternalLinkIcon className="h-4 w-4" />
-                          </a>
-                        </Button>
+                          {/* Live iframe of the website */}
+                          <iframe
+                            src={project.liveLink}
+                            className={`w-full h-full absolute inset-0 border-0 transition-opacity duration-500 ${project.isLiveFrameLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            loading="lazy"
+                            onLoad={() => handleIframeLoad(project.name)}
+                            title={project.name}
+                          />
+                        </>
+                      ) : (
+                        <Image
+                          src={project.image}
+                          alt={project.name}
+                          fill
+                          className="object-cover"
+                        />
                       )}
-                      {project.githubLink && (
+
+                      {/* Overlay with gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+
+                    <div className="p-6 bg-card rounded-b-xl">
+                      <h3 className="text-xl font-bold mb-2">{project.name}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                        {project.description[0]}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.technologies.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center">
                         <Button
                           size="sm"
-                          variant="outline"
+                          onClick={() => handleOpenProject(project)}
                           className="rounded-full"
-                          asChild
                         >
-                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
-                            <GithubIcon className="h-4 w-4" />
-                          </a>
+                          <InfoIcon className="mr-2 h-4 w-4" />
+                          Details
                         </Button>
+
+                        <div className="flex gap-2">
+                          {project.liveLink && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-full"
+                              asChild
+                            >
+                              <a href={project.liveLink} target="_blank" rel="noopener noreferrer">
+                                <ExternalLinkIcon className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+
+                          {project.githubLink && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-full"
+                              asChild
+                            >
+                              <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
+                                <GithubIcon className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </motion.div>
+
+          {/* Project Grid */}
+          <motion.div variants={itemVariants}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enhancedProjects.map((project, index) => (
+                <motion.div
+                  key={`grid-${project.name}`}
+                  variants={itemVariants}
+                  className="bg-card border border-border/50 rounded-lg overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="relative h-48 w-full overflow-hidden">
+                    {project.liveLink ? (
+                      <>
+                        {/* Fallback image shown while iframe is loading */}
+                        {!project.isLiveFrameLoaded && (
+                          <Image
+                            src={project.previewImage || project.image}
+                            alt={project.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105 duration-500"
+                          />
+                        )}
+
+                        {/* Only show iframe if it has loaded */}
+                        {project.isLiveFrameLoaded && (
+                          <iframe
+                            src={project.liveLink}
+                            className="w-full h-full border-0"
+                            title={project.name}
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <Image
+                        src={project.image}
+                        alt={project.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105 duration-500"
+                      />
+                    )}
+
+                    {/* Overlay with buttons */}
+                    <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenProject(project)}
+                          className="rounded-full"
+                        >
+                          <PanelRightIcon className="mr-2 h-4 w-4" />
+                          View Project
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-bold mb-1">{project.name}</h3>
+                    <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
+                      {project.description[0]}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1">
+                      {project.technologies.slice(0, 3).map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+
+                      {project.technologies.length > 3 && (
+                        <span className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
+                          +{project.technologies.length - 3}
+                        </span>
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
-                <CardContent className="p-5">
-                  <h3 className="text-xl font-semibold mb-2">{project.name}</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {project.description[0].length > 100
-                      ? `${project.description[0].substring(0, 100)}...`
-                      : project.description[0]}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {project.technologies.slice(0, 3).map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {project.technologies.length > 3 && (
-                      <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
-                        +{project.technologies.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+          <motion.div variants={itemVariants} className="text-center mt-12">
+            <p className="text-muted-foreground mb-6">
+              Interested in seeing more of my work? Check out my GitHub repositories.
+            </p>
+            <Button asChild>
+              <a
+                href="https://github.com/INFINITYASH3699"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full px-6 group"
+              >
+                <GithubIcon className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                View More on GitHub
+              </a>
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Project Preview Dialog */}
-      <Dialog open={!!selectedProject} onOpenChange={handleClosePreview}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden">
-          {selectedProject && (
-            <>
-              <DialogHeader className="px-6 pt-6">
-                <DialogTitle className="text-2xl">{selectedProject.name}</DialogTitle>
-              </DialogHeader>
-
-              <div className="relative h-[400px] w-full overflow-hidden">
+      {/* Project Details Dialog */}
+      {selectedProject && (
+        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+          <DialogContent className="max-w-4xl p-0 overflow-hidden">
+            <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden">
+              {selectedProject.liveLink ? (
+                <iframe
+                  src={selectedProject.liveLink}
+                  className="w-full h-full border-0"
+                  title={selectedProject.name}
+                />
+              ) : (
                 <Image
-                  src={selectedProject.previewImage}
-                  alt={`${selectedProject.name} preview`}
+                  src={selectedProject.previewImage || selectedProject.image}
+                  alt={selectedProject.name}
                   fill
                   className="object-cover"
                 />
-              </div>
+              )}
 
-              <div className="p-6 space-y-4">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent h-20" />
+            </div>
+
+            <div className="p-6">
+              <DialogHeader className="mb-6">
+                <DialogTitle className="text-2xl font-bold">{selectedProject.name}</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-2">PROJECT DESCRIPTION</h4>
-                  <div className="space-y-2">
-                    {selectedProject.description.map((paragraph, idx) => (
-                      <p key={idx} className="text-sm">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
+                  <h4 className="text-sm font-semibold text-primary mb-2">DESCRIPTION</h4>
+                  {selectedProject.description.map((paragraph, idx) => (
+                    <p key={idx} className="text-muted-foreground mb-2">
+                      {paragraph}
+                    </p>
+                  ))}
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-2">TECHNOLOGIES USED</h4>
+                  <h4 className="text-sm font-semibold text-primary mb-2">TECHNOLOGIES USED</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedProject.technologies.map((tech) => (
                       <span
                         key={tech}
-                        className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
+                        className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full"
                       >
                         {tech}
                       </span>
@@ -226,29 +367,30 @@ export function ProjectsSection() {
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-2">
+                <div className="flex flex-wrap gap-4 pt-2">
                   {selectedProject.liveLink && (
                     <Button asChild>
                       <a href={selectedProject.liveLink} target="_blank" rel="noopener noreferrer">
-                        <ExternalLinkIcon className="h-4 w-4 mr-2" />
+                        <ExternalLinkIcon className="mr-2 h-4 w-4" />
                         Visit Website
                       </a>
                     </Button>
                   )}
+
                   {selectedProject.githubLink && (
                     <Button variant="outline" asChild>
                       <a href={selectedProject.githubLink} target="_blank" rel="noopener noreferrer">
-                        <GithubIcon className="h-4 w-4 mr-2" />
+                        <GithubIcon className="mr-2 h-4 w-4" />
                         View Code
                       </a>
                     </Button>
                   )}
                 </div>
               </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 }

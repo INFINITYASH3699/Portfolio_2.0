@@ -1,29 +1,34 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins, JetBrains_Mono } from "next/font/google";
+import { ClientBody } from "./ClientBody";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-import ClientBody from "./ClientBody";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
   display: "swap",
+  variable: "--font-sans",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-display",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
   title: "Yash Hulle | Web Developer",
-  description:
-    "Portfolio website of Yash Hulle, a passionate web developer specializing in JavaScript, React.js, Next.js and MERN stack",
-  keywords: [
-    "web developer",
-    "portfolio",
-    "React",
-    "Next.js",
-    "MERN stack",
-    "JavaScript",
-    "frontend developer",
-  ],
-  authors: [{ name: "Yash Hulle" }],
-  creator: "Yash Hulle",
+  description: "Passionate Web Developer skilled in JavaScript, Next.js, and MERN stack",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -32,9 +37,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} scroll-smooth`}>
-      <body suppressHydrationWarning className="antialiased font-sans">
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ClientBody>{children}</ClientBody>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

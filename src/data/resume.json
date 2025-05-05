@@ -4,6 +4,7 @@
   "phone": "9665187273",
   "email": "yash.hulle3699@gmail.com",
   "linkedin": "https://www.linkedin.com/in/yash-hulle/",
+  "github": "https://github.com/INFINITYASH3699/",
   "objective": "Passionate Web Developer skilled in JavaScript, Next.js, and MERN stack, eager to build scalable and user-friendly web applications. Seeking an opportunity to apply my technical expertise and problem-solving skills in a dynamic team.",
   "technicalSkills": [
     {
@@ -57,7 +58,10 @@
         "Optimized UI performance, integrated authentication, and enabled real-time database updates."
       ],
       "technologies": ["React.js", "Node.js", "MongoDB", "AWS"],
-      "image": "/images/projects/opex.jpg"
+      "image": "/images/projects/opex.jpg",
+      "previewImage": "/images/project-previews/opex.jpg",
+      "liveLink": "https://opex-home-solutions.vercel.app/",
+      "githubLink": "https://github.com/INFINITYASH3699/Opex-Home-Solution"
     },
     {
       "name": "Portfolio Hub",
@@ -65,8 +69,11 @@
         "Built a responsive portfolio builder with real-time project management using Next.js, Tailwind CSS, and Node.js.",
         "Integrated secure user authentication and customizable UI for seamless portfolio creation and sharing."
       ],
-      "technologies": ["Next.js", "Tailwind CSS", "Node.js"],
-      "image": "/images/projects/portfolio-hub.jpg"
+      "technologies": ["Next.js", "Tailwind CSS", "Node.js", "MongoDB", "TypeScript"],
+      "image": "/images/projects/portfolio-hub.jpg",
+      "previewImage": "/images/project-previews/portfolio-hub.jpg",
+      "liveLink": "https://portfolio-hubspot.vercel.app/",
+      "githubLink": "https://github.com/INFINITYASH3699/Portfolio-Hub"
     },
     {
       "name": "THE CAKE HEAVEN",
@@ -74,8 +81,11 @@
         "Designed and deployed a cake ecom website with tech stack using Next.js, Tailwind, Cloudinary and MongoDB.",
         "Improved accessibility and boosting user engagement and mobile usability."
       ],
-      "technologies": ["Next.js", "Tailwind CSS", "Cloudinary", "MongoDB"],
-      "image": "/images/projects/cake-heaven.jpg"
+      "technologies": ["Next.js", "Tailwind CSS", "Cloudinary", "MongoDB", "Firebase Auth"],
+      "image": "/images/projects/cake-heaven.jpg",
+      "previewImage": "/images/project-previews/cake-heaven.jpg",
+      "liveLink": "https://the-cake-heaven.vercel.app/",
+      "githubLink": "https://github.com/INFINITYASH3699/THE-CAKE-HEAVEN"
     }
   ],
   "education": [
@@ -96,5 +106,19 @@
     "HackerRank - Frontend Developer (React)",
     "Postman - API Fundamentals Student Expert"
   ],
-  "languages": ["English", "Hindi", "Marathi"]
+  "languages": ["English", "Hindi", "Marathi"],
+  "socialLinks": [
+    {
+      "platform": "GitHub",
+      "url": "https://github.com/INFINITYASH3699/"
+    },
+    {
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/in/yash-hulle/"
+    },
+    {
+      "platform": "Email",
+      "url": "mailto:yash.hulle3699@gmail.com"
+    }
+  ]
 }
