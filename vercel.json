@@ -1,9 +1,10 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "bun run build",
   "outputDirectory": "out",
+  "devCommand": "bun run dev",
+  "installCommand": "bun install",
   "framework": "nextjs",
   "rewrites": [
-    { "source": "/:path*", "destination": "/index.html" }
-  ],
-  "trailingSlash": true
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }
