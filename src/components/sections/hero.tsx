@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
 import { ArrowRight, ArrowDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,18 +11,6 @@ import { getBasicInfo } from "@/lib/resume";
 export function HeroSection() {
   const { name, objective } = getBasicInfo();
   const targetRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start start", "end start"],
-  });
-
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const blurValue = useTransform(scrollYProgress, [0, 0.5], [0, 8]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-  const position = useTransform(scrollYProgress, (pos) => {
-    return pos === 1 ? "relative" : "sticky";
-  });
 
   // Split the first name and last name for animation
   const nameParts = name.split(" ");
@@ -69,18 +57,10 @@ export function HeroSection() {
   }, []);
 
   return (
-    <motion.section
+    <section
       id="home"
       ref={targetRef}
       className="min-h-screen w-full flex flex-col items-center justify-center py-20 overflow-hidden bg-dotted-grid"
-      style={{
-        opacity,
-        filter: `blur(${blurValue.get()}px)`,
-        scale,
-        position,
-        top: 0,
-        zIndex: 0
-      }}
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -220,6 +200,6 @@ export function HeroSection() {
         <span className="text-sm text-muted-foreground mb-2">Scroll Down</span>
         <ArrowDown className="w-5 h-5 text-primary animate-bounce" />
       </motion.a>
-    </motion.section>
+    </section>
   );
 }
