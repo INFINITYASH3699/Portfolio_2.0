@@ -65,11 +65,11 @@ export function AboutSection() {
               </div>
 
               {/* Stats card */}
-              <div className="absolute -right-10 bottom-20 bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border/50 shadow-lg card-3d-content">
+              <div className="absolute -right-10 bottom-10 bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border/50 shadow-lg card-3d-content">
                 <div className="text-sm space-y-1">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                    <span className="font-medium">2+ Years Experience</span>
+                    <span className="font-medium">1+ Years Experience</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -79,7 +79,7 @@ export function AboutSection() {
               </div>
 
               {/* Location card */}
-              <div className="absolute -left-10 top-20 bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border/50 shadow-lg card-3d-content">
+              <div className="absolute -left-10 top-10 bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border/50 shadow-lg card-3d-content">
                 <div className="text-sm">
                   <p className="font-medium">📍 {location}</p>
                 </div>
