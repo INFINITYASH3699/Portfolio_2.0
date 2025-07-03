@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Navigation, EffectCoverflow } from "swiper/modules";
+import { Pagination, Navigation, EffectCoverflow, Autoplay } from "swiper/modules";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { GithubIcon, ExternalLinkIcon, FolderIcon, InfoIcon, PanelRightIcon } from "lucide-react";
@@ -44,11 +44,34 @@ export function ProjectsSection() {
     },
   };
 
-  // Merge dynamic link data
-  const enhancedProjects = projects.map(project => ({
-    ...project,
-    isLiveFrameLoaded: !!isIframeLoaded[project.name]
-  }));
+  // Create infinite loop by duplicating projects
+  const createInfiniteProjects = () => {
+    if (projects.length === 0) return [];
+    
+    // Duplicate projects multiple times for smooth infinite scroll
+    const duplicateCount = Math.max(3, Math.ceil(10 / projects.length));
+    const infiniteProjects = [];
+    
+    for (let i = 0; i < duplicateCount; i++) {
+      infiniteProjects.push(...projects.map((project, index) => ({
+        ...project,
+        uniqueId: `${i}-${index}`, // Add unique ID for React keys
+        isLiveFrameLoaded: !!isIframeLoaded[project.name]
+      })));
+    }
+    
+    return infiniteProjects;
+  };
+
+  const infiniteProjects = createInfiniteProjects();
+  
+  // Calculate initial slide (start from 2nd project)
+  const getInitialSlide = () => {
+    if (projects.length === 0) return 0;
+    // Start from the middle batch, 2nd project (index 1)
+    const middleBatchStart = Math.floor(infiniteProjects.length / 2 / projects.length) * projects.length;
+    return middleBatchStart + 1; // +1 for 2nd project (0-indexed)
+  };
 
   const handleOpenProject = (project: typeof projects[0]) => {
     setSelectedProject(project);
@@ -90,6 +113,9 @@ export function ProjectsSection() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={"auto"}
+              initialSlide={getInitialSlide()}
+              loop={true}
+              loopAdditionalSlides={2}
               coverflowEffect={{
                 rotate: 50,
                 stretch: 0,
@@ -97,16 +123,36 @@ export function ProjectsSection() {
                 modifier: 1,
                 slideShadows: false,
               }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
               pagination={{
                 clickable: true,
+                dynamicBullets: true,
               }}
               navigation={true}
-              modules={[EffectCoverflow, Pagination, Navigation]}
+              modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
               className="mySwiper"
+              breakpoints={{
+                320: {
+                  slidesPerView: 1,
+                  spaceBetween: 20,
+                },
+                768: {
+                  slidesPerView: 1.5,
+                  spaceBetween: 30,
+                },
+                1024: {
+                  slidesPerView: 2,
+                  spaceBetween: 40,
+                },
+              }}
             >
-              {enhancedProjects.map((project, index) => (
+              {infiniteProjects.map((project, index) => (
                 <SwiperSlide
-                  key={project.name}
+                  key={project.uniqueId}
                   className="max-w-2xl rounded-xl overflow-hidden"
                 >
                   <div className="relative group card-3d">
@@ -158,9 +204,9 @@ export function ProjectsSection() {
                       </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {project.technologies.map((tech) => (
+                        {project.technologies.map((tech, techIndex) => (
                           <span
-                            key={tech}
+                            key={`${project.uniqueId}-${tech}-${techIndex}`}
                             className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
                           >
                             {tech}
@@ -216,7 +262,7 @@ export function ProjectsSection() {
           {/* Project Grid */}
           <motion.div variants={itemVariants}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enhancedProjects.map((project, index) => (
+              {projects.map((project, index) => (
                 <motion.div
                   key={`grid-${project.name}`}
                   variants={itemVariants}
@@ -226,7 +272,7 @@ export function ProjectsSection() {
                     {project.liveLink ? (
                       <>
                         {/* Fallback image shown while iframe is loading */}
-                        {!project.isLiveFrameLoaded && (
+                        {!isIframeLoaded[project.name] && (
                           <Image
                             src={project.previewImage || project.image}
                             alt={project.name}
@@ -236,7 +282,7 @@ export function ProjectsSection() {
                         )}
 
                         {/* Only show iframe if it has loaded */}
-                        {project.isLiveFrameLoaded && (
+                        {isIframeLoaded[project.name] && (
                           <iframe
                             src={project.liveLink}
                             className="w-full h-full border-0"
@@ -275,9 +321,9 @@ export function ProjectsSection() {
                     </p>
 
                     <div className="flex flex-wrap gap-1">
-                      {project.technologies.slice(0, 3).map((tech) => (
+                      {project.technologies.slice(0, 3).map((tech, techIndex) => (
                         <span
-                          key={tech}
+                          key={`${project.name}-grid-${tech}-${techIndex}`}
                           className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
                         >
                           {tech}
@@ -340,7 +386,7 @@ export function ProjectsSection() {
 
             <div className="p-6">
               <DialogHeader className="mb-6">
-                <DialogTitle className="text-2xl font-bold">{selectedProject.name}</DialogTitle>
+                                <DialogTitle className="text-2xl font-bold">{selectedProject.name}</DialogTitle>
               </DialogHeader>
 
               <div className="space-y-6">
@@ -356,9 +402,9 @@ export function ProjectsSection() {
                 <div>
                   <h4 className="text-sm font-semibold text-primary mb-2">TECHNOLOGIES USED</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedProject.technologies.map((tech) => (
+                    {selectedProject.technologies.map((tech, techIndex) => (
                       <span
-                        key={tech}
+                        key={`dialog-${tech}-${techIndex}`}
                         className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full"
                       >
                         {tech}

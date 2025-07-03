@@ -1,205 +1,365 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
-import { ArrowRight, ArrowDown, Download } from "lucide-react";
+import {
+  ArrowRight,
+  Download,
+  Github,
+  Linkedin,
+  Mail,
+  Code,
+  Sparkles,
+  Star,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getBasicInfo } from "@/lib/resume";
 
 export function HeroSection() {
   const { name, objective } = getBasicInfo();
   const targetRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  // Mouse tracking for parallax effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-300, 300], [5, -5]));
+  const rotateY = useSpring(useTransform(mouseX, [-300, 300], [-5, 5]));
 
   // Split the first name and last name for animation
   const nameParts = name.split(" ");
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ");
 
-  // 3D tilt effect for the profile container
+  // Enhanced 3D tilt effect
   useEffect(() => {
-    const profileContainer = document.querySelector(".profile-3d-container");
-    if (!profileContainer) return;
-
     const handleMouseMove = (e: MouseEvent) => {
-      if (!profileContainer) return;
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
 
-      const rect = profileContainer.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
+      const x = (clientX - innerWidth / 2) / (innerWidth / 2);
+      const y = (clientY - innerHeight / 2) / (innerHeight / 2);
 
-      const container = profileContainer as HTMLElement;
-      container.style.transform = `
-        perspective(1000px)
-        rotateY(${x * 0.01}deg)
-        rotateX(${-y * 0.01}deg)
-      `;
+      mouseX.set(x * 50);
+      mouseY.set(y * 50);
+      setMousePosition({ x: clientX, y: clientY });
+
+      // Check if hovering over interactive elements
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, a, [role="button"]') !== null;
+      setIsHovering(isInteractive);
     };
 
-    const handleMouseLeave = () => {
-      if (!profileContainer) return;
-      const container = profileContainer as HTMLElement;
-      container.style.transform = `
-        perspective(1000px)
-        rotateY(0deg)
-        rotateX(0deg)
-      `;
-    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
 
-    profileContainer.addEventListener("mousemove", handleMouseMove);
-    profileContainer.addEventListener("mouseleave", handleMouseLeave);
+  // Floating animation variants
+  const floatingVariants = {
+    animate: {
+      y: [-10, 10, -10],
+      rotate: [0, 3, 0, -3, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+      },
+    },
+  };
 
-    return () => {
-      profileContainer.removeEventListener("mousemove", handleMouseMove);
-      profileContainer.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
+  const socialLinks = [
+    { icon: Github, href: "https://github.com/INFINITYASH3699", label: "GitHub" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/yash-hulle/", label: "LinkedIn" },
+    { icon: Mail, href: "mailto:yash.hulle3699@gmail.com", label: "Email" },
+  ];
 
   return (
     <section
       id="home"
       ref={targetRef}
-      className="min-h-screen w-full flex flex-col items-center justify-center py-20 overflow-hidden bg-dotted-grid"
+      className="min-h-screen w-full flex flex-col items-center justify-center py-16 overflow-hidden relative"
     >
-      {/* Animated background elements */}
+      {/* Simplified animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-1/4 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" />
-        <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float animation-delay-2000" />
+        <motion.div
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -25, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute top-20 left-1/4 w-72 h-72 bg-gradient-to-r from-primary/15 to-blue-500/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70"
+        />
+        <motion.div
+          animate={{
+            x: [0, -50, 0],
+            y: [0, 25, 0],
+            scale: [1.1, 1, 1.1],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-20 right-1/4 w-72 h-72 bg-gradient-to-l from-purple-500/15 to-pink-500/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70"
+        />
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.01]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          {/* Left side - Content */}
           <div className="order-2 lg:order-1">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
               className="space-y-6"
             >
-              <div className="space-y-2">
+              {/* Greeting */}
+              <div className="space-y-3">
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-primary font-medium"
+                  className="text-muted-foreground"
                 >
                   Hello, I&apos;m
                 </motion.p>
+
+                {/* Name */}
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="text-4xl md:text-5xl lg:text-6xl font-bold font-display"
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold font-display leading-tight"
                 >
-                  <span className="gradient-text">{firstName}</span>{" "}
+                  <motion.span
+                    className="bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent"
+                    animate={{
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    {firstName}
+                  </motion.span>{" "}
                   <span>{lastName}</span>
                 </motion.h1>
+
+                {/* Typing animation */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-2xl md:text-3xl font-medium text-muted-foreground flex items-center h-12"
+                  className="text-xl md:text-2xl font-medium flex items-center h-12"
                 >
+                  <span className="text-muted-foreground mr-2">I'm a</span>
                   <TypeAnimation
                     sequence={[
-                      "Web Developer",
-                      1500,
-                      "Frontend Engineer",
-                      1500,
-                      "MERN Stack Developer",
-                      1500,
-                      "JavaScript Enthusiast",
-                      1500,
+                      "Full-Stack Developer",
+                      2000,
+                      "React Specialist",
+                      2000,
+                      "MERN Stack Expert",
+                      2000,
+                      "Problem Solver",
+                      2000,
                     ]}
-                    wrapper="div"
+                    wrapper="span"
                     speed={50}
-                    repeat={Number.POSITIVE_INFINITY}
+                    repeat={Infinity}
+                    className="text-primary font-bold"
                     cursor={true}
-                    className="text-primary"
                   />
                 </motion.div>
               </div>
 
+              {/* Description */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="text-muted-foreground max-w-md"
+                className="text-muted-foreground max-w-lg leading-relaxed"
               >
                 {objective}
               </motion.p>
 
+              {/* Action buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="flex flex-wrap gap-4 pt-4"
+                className="flex flex-wrap gap-4 pt-2"
               >
-                <Button size="lg" className="rounded-full group">
-                  <span>Get in touch</span>
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-                <Button size="lg" variant="outline" className="rounded-full group" asChild>
-                  <a href="/resume/Yash_Hulle_Frontend_Developer.pdf" target="_blank" rel="noopener noreferrer">
-                    <Download className="mr-2 h-4 w-4 transition-transform group-hover:translate-y-1" />
-                    <span>Download CV</span>
+                <Button
+                  size="lg"
+                  className="rounded-full group bg-gradient-to-r from-primary to-blue-600"
+                  asChild
+                >
+                  <a href="#contact">
+                    <Mail className="mr-2 h-4 w-4" />
+                    <span>Get in touch</span>
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>
                 </Button>
+
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full group"
+                  asChild
+                >
+                  <a
+                    href="/resume/Yash_Hulle_Frontend_Developer.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    <span>Resume</span>
+                  </a>
+                </Button>
+              </motion.div>
+
+              {/* Social links */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="flex gap-3 pt-2"
+              >
+                {socialLinks.map((social) => (
+                  <motion.a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2.5 rounded-full bg-card border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <social.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </motion.a>
+                ))}
               </motion.div>
             </motion.div>
           </div>
 
+          {/* Right side - Enhanced profile (30% larger) */}
           <div className="order-1 lg:order-2 flex justify-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="profile-3d-container relative w-[280px] h-[280px] md:w-[320px] md:h-[320px] lg:w-[380px] lg:h-[380px] transition-transform duration-200"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              style={{ rotateX, rotateY }}
+              className="relative w-[364px] h-[364px] md:w-[416px] md:h-[416px]" // Increased by 30%
             >
-              {/* Outer glowing circle */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-lg animate-pulse" />
+              {/* Outer ring */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 rounded-full border border-dashed border-primary/20"
+              />
 
-              {/* Middle circle with pattern */}
-              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-primary/10 to-primary/5" />
+              {/* Glowing circle */}
+              <motion.div
+                animate={{
+                  scale: [1, 1.02, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute inset-3 rounded-full bg-gradient-to-r from-primary/15 via-blue-500/15 to-purple-500/15 blur-lg"
+              />
 
-              {/* Inner circle with profile image */}
-              <div className="absolute inset-5 rounded-full overflow-hidden border-2 border-primary/10">
+              {/* Profile image */}
+              <div className="absolute inset-6 rounded-full overflow-hidden border-2 border-primary/20 shadow-xl bg-gradient-to-br from-card to-card/80">
                 <Image
                   src="/images/profile.png"
                   alt={name}
                   fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 280px, (max-width: 1024px) 320px, 380px"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  sizes="(max-width: 768px) 364px, 416px" // Updated sizes
                   priority
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-transparent to-transparent" />
               </div>
 
-              {/* 3D floating elements */}
-              <div className="absolute top-0 -right-4 w-12 h-12 bg-blue-500/80 rounded-full blur-sm animate-float" />
-              <div className="absolute -bottom-5 left-10 w-8 h-8 bg-purple-500/80 rounded-full blur-sm animate-float animation-delay-1000" />
-              <div className="absolute top-1/4 -left-6 w-6 h-6 bg-pink-500/80 rounded-full blur-sm animate-float animation-delay-2000" />
+              {/* Compact floating elements */}
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg flex items-center justify-center"
+              >
+                <Code className="w-6 h-6 text-white" />
+              </motion.div>
+
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                style={{ animationDelay: "1s" }}
+                className="absolute -bottom-3 -left-3 w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg flex items-center justify-center"
+              >
+                <Sparkles className="w-5 h-5 text-white" />
+              </motion.div>
+
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                style={{ animationDelay: "2s" }}
+                className="absolute top-1/4 -left-4 w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-lg flex items-center justify-center"
+              >
+                <Zap className="w-4 h-4 text-white" />
+              </motion.div>
+
+              <motion.div
+                variants={floatingVariants}
+                animate="animate"
+                style={{ animationDelay: "0.5s" }}
+                className="absolute bottom-1/3 -right-4 w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full shadow-lg flex items-center justify-center"
+              >
+                <Star className="w-4 h-4 text-white" />
+              </motion.div>
             </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.a
-        href="#about"
+      {/* Compact scroll indicator */}
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.5,
-          delay: 1,
-          repeat: Number.POSITIVE_INFINITY,
-          repeatType: "reverse",
-        }}
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
+        transition={{ duration: 0.5, delay: 1.5 }}
+        className="absolute bottom-6 left-1/2 transform -translate-x-1/2"
       >
-        <span className="text-sm text-muted-foreground mb-2">Scroll Down</span>
-        <ArrowDown className="w-5 h-5 text-primary animate-bounce" />
-      </motion.a>
+        <motion.a
+          href="#about"
+          className="flex flex-col items-center group cursor-pointer"
+          animate={{ y: [0, 5, 0] }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <span className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">
+            Scroll
+          </span>
+          <div className="w-5 h-8 border border-muted-foreground group-hover:border-primary rounded-full flex justify-center transition-colors">
+            <motion.div
+              className="w-0.5 h-2 bg-muted-foreground group-hover:bg-primary rounded-full mt-1.5"
+              animate={{ y: [0, 8, 0] }}
+              transition={{
+                                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </div>
+        </motion.a>
+      </motion.div>
     </section>
   );
 }
