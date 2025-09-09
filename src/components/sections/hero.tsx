@@ -158,11 +158,11 @@ export function HeroSection() {
                     sequence={[
                       "Full-Stack Developer",
                       2000,
-                      "React Specialist",
+                      "React Js Developer",
                       2000,
                       "MERN Stack Expert",
                       2000,
-                      "Problem Solver",
+                      "UI/UX Developer",
                       2000,
                     ]}
                     wrapper="span"

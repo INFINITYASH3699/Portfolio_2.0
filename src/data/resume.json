@@ -9,7 +9,15 @@
   "technicalSkills": [
     {
       "category": "Frontend",
-      "skills": ["HTML", "CSS", "JavaScript", "React.js", "Next.js", "Bootstrap", "Tailwind CSS"]
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React.js",
+        "Next.js",
+        "Bootstrap",
+        "Tailwind CSS"
+      ]
     },
     {
       "category": "Backend",
@@ -64,12 +72,56 @@
       "githubLink": "https://github.com/INFINITYASH3699/Opex-Home-Solution"
     },
     {
+      "name": "Connecting Dots ERP",
+      "description": [
+        "Developed dynamic pages and reusable components using Next.js and Tailwind CSS.",
+        "Solved issues related to server-side rendering (SSR) to improve SEO and performance.",
+        "Collaborated with the team to enhance overall user experience and maintain code quality."
+      ],
+      "technologies": [
+        "Next.js",
+        "React.js",
+        "Tailwind CSS",
+        "Node.js",
+        "MongoDB"
+      ],
+      "image": "/images/projects/connecting-dots.jpg",
+      "previewImage": "/images/project-previews/connecting-dots.jpg",
+      "liveLink": "https://connectingdotserp.com/",
+      "githubLink": ""
+    },
+
+    {
+      "name": "Atorix IT Solutions",
+      "description": [
+        "Worked on optimizing UI components and improving usability across multiple client projects.",
+        "Integrated backend APIs with MongoDB & Express.js, ensuring smooth data flow."
+      ],
+      "technologies": [
+        "Next.js",
+        "React.js",
+        "Tailwind CSS",
+        "Node.js",
+        "MongoDB"
+      ],
+      "image": "/images/projects/atorix.jpg",
+      "previewImage": "/images/project-previews/atorix.jpg",
+      "liveLink": "https://atorixit.com/",
+      "githubLink": ""
+    },
+    {
       "name": "Portfolio Hub",
       "description": [
         "Built a responsive portfolio builder with real-time project management using Next.js, Tailwind CSS, and Node.js.",
         "Integrated secure user authentication and customizable UI for seamless portfolio creation and sharing."
       ],
-      "technologies": ["Next.js", "Tailwind CSS", "Node.js", "MongoDB", "TypeScript"],
+      "technologies": [
+        "Next.js",
+        "Tailwind CSS",
+        "Node.js",
+        "MongoDB",
+        "TypeScript"
+      ],
       "image": "/images/projects/portfolio-hub.jpg",
       "previewImage": "/images/project-previews/portfolio-hub.jpg",
       "liveLink": "https://portfolio-hubspot.vercel.app/",
@@ -81,13 +133,20 @@
         "Designed and deployed a cake ecom website with tech stack using Next.js, Tailwind, Cloudinary and MongoDB.",
         "Improved accessibility and boosting user engagement and mobile usability."
       ],
-      "technologies": ["Next.js", "Tailwind CSS", "Cloudinary", "MongoDB", "Firebase Auth"],
+      "technologies": [
+        "Next.js",
+        "Tailwind CSS",
+        "Cloudinary",
+        "MongoDB",
+        "Firebase Auth"
+      ],
       "image": "/images/projects/cake-heaven.jpg",
       "previewImage": "/images/project-previews/cake-heaven.jpg",
       "liveLink": "https://the-cake-heaven.vercel.app/",
       "githubLink": "https://github.com/INFINITYASH3699/THE-CAKE-HEAVEN"
     }
   ],
+
   "education": [
     {
       "institution": "G H Raisoni University, Amravati",
